@@ -2,6 +2,7 @@
 
 int main(void)
 {
+    srand(42);
     dataset_t test_data = malloc(sizeof(dataset));
     dataset_t train_data = malloc(sizeof(dataset));
     if (!test_data || !train_data) { // checking if the mallocs went well
@@ -11,7 +12,6 @@ int main(void)
     
     int test_ret = load_dataset(test_data, "data/test_labels_idx1",
         "data/test_images_idx3");
-
     int train_ret = load_dataset(train_data, "data/train_labels_idx1",
         "data/train_images_idx3");
 

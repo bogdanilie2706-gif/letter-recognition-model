@@ -23,7 +23,6 @@ int load_dataset(dataset_t data, char *idx1_filename, char *idx3_filename)
 	return 0;
 }
 
-
 int load_idx3_file(FILE *idx, dataset_t data)
 {
 	unsigned char buffer[16]; // for reading the header
@@ -132,7 +131,7 @@ void destroy_dataset(dataset_t *data)
 	dataset_t aux = *data;
 	if (aux->labels)
 		free(aux->labels);
-		
+
 	if (aux->images) {
 		for (int i = 0; i < aux->nr_samples; i++)
 			free(aux->images[i]);

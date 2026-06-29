@@ -1,5 +1,8 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include "../headers/1_data_loader.h"
 #include "../headers/2_matrix.h"
 
-
+#endif
 
