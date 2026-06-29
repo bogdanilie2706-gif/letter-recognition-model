@@ -1,5 +1,29 @@
 #include "../headers/1_data_loader.h"
 
+int load_dataset(dataset_t data, char *idx1_filename, char *idx3_filename)
+{
+	FILE *idx1 = fopen(idx1_filename, "rb");
+	FILE *idx3 = fopen(idx3_filename, "rb");
+	if (!idx1 || !idx3) {
+		perror("couldn't open files in load_dataset");
+		return 1;
+	}
+	int idx1_ret = load_idx1_file(idx1, data);
+	int idx3_ret = load_idx3_file(idx3, data);
+
+	if(idx1_ret || idx3_ret) {
+		perror("error loading the data in the files in load_dataset");
+		fclose(idx1);
+		fclose(idx3);
+		return 1;
+	}
+
+	fclose(idx1);
+	fclose(idx3);
+	return 0;
+}
+
+
 int load_idx3_file(FILE *idx, dataset_t data)
 {
 	unsigned char buffer[16]; // for reading the header
@@ -16,7 +40,7 @@ int load_idx3_file(FILE *idx, dataset_t data)
 
 	printf("nr images = %d\n", n);
 
-	data->nr_images = n;
+	data->nr_samples = n;
 	data->images = malloc(sizeof(unsigned char *) * n);
 	if (!data->images) {
 		perror("data->images couldn't be allocated in load_idx3_file");
@@ -72,7 +96,7 @@ int load_idx1_file(FILE *idx, dataset_t data)
 			((unsigned int)buffer[5] << 16) |
 			((unsigned int)buffer[6] << 8) |
 			((unsigned int)buffer[7]); // conversion from big to little endian
-	data->nr_labels = n;
+	data->nr_samples = n;
 
 	printf("nr_labels = %d\n", n);
 
@@ -106,9 +130,15 @@ void print_image(dataset_t data, int image_index)
 void destroy_dataset(dataset_t *data)
 {
 	dataset_t aux = *data;
-	free(aux->labels);
-	for (int i = 0; i < aux->nr_images; i++)
-		free(aux->images[i]);
-	free(aux->images);
+	if (aux->labels)
+		free(aux->labels);
+		
+	if (aux->images) {
+		for (int i = 0; i < aux->nr_samples; i++)
+			free(aux->images[i]);
+		free(aux->images);
+	}
 	free(*data);
 }
+
+
