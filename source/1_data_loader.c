@@ -1,35 +1,30 @@
 #include "../headers/1_data_loader.h"
 
-idx3_t load_idx3_file(FILE *idx)
+int load_idx3_file(FILE *idx, dataset_t data)
 {
-	char buffer[16]; // for reading the header
+	unsigned char buffer[16]; // for reading the header
 	int x = fread(buffer, 4, 4, idx);
 	if (x != 4) {
 		perror("fread at buffer in load_idx3_file stopped early");
-		return NULL;
+		return 1;
 	}
 
-	idx3_t data = malloc(sizeof(idx3));
-	if (!data) {
-		perror("data couldn't be allocated in load_idx3_file");
-		return NULL;
-	}
+	int n = ((unsigned int)buffer[4] << 24) | 
+			((unsigned int)buffer[5] << 16) |
+			((unsigned int)buffer[6] << 8) |
+			((unsigned int)buffer[7]); // conversion from big to little endian
 
-	int n = ((int)buffer[4] << 24) | 
-			((int)buffer[5] << 16) |
-			((int)buffer[6] << 8) |
-			((int)buffer[7]); // conversion from big to little endian
+	printf("nr images = %d\n", n);
 
 	data->nr_images = n;
-	// printf()
 	data->images = malloc(sizeof(unsigned char *) * n);
 	if (!data->images) {
-		free(data);
 		perror("data->images couldn't be allocated in load_idx3_file");
-		return NULL;
+		return 1;
 	}
 
 	int ok = 1, i;
+	char aux[784]; // for reading the transposed image
 	for (i = 0; i < n; i++) {
 		
 		data->images[i] = malloc(sizeof(unsigned char) * 784);
@@ -39,22 +34,81 @@ idx3_t load_idx3_file(FILE *idx)
 			break;
 		}
 
-		x = fread(data->images[i], 1, 784, idx);
+		x = fread(aux, 1, 784, idx);
 		if (x != 784) {
 			ok = 0;
 			perror("fread at data->images[i] in load_idx3_file stopped early");
 			break;
 		}
+
+		for (int j = 0; j < 28; j++) {
+			for (int k = 0; k < 28; k++)
+				data->images[i][k * 28 + j] = aux[j * 28 + k];
+				// transposing the image
+		}
 	}
 
-	if(!ok) {
+	if(!ok) { // checking if there was a problem in the for loop
 		for (int j = 0; j < i; j++)
 			free(data->images[j]);
 		free(data->images);
-		free(data);
 		printf("%d\n", i);
-		return NULL;
+		return 1;
 	}
 
-	return data;
+	return 0;
+}
+
+int load_idx1_file(FILE *idx, dataset_t data)
+{
+	unsigned char buffer[8]; // for reading the header
+	int x = fread(buffer, 4, 2, idx);
+	if (x != 2) {
+		perror("fread at buffer in load_idx1_file stopped early");
+		return 1;
+	}
+
+	int n = ((unsigned int)buffer[4] << 24) | 
+			((unsigned int)buffer[5] << 16) |
+			((unsigned int)buffer[6] << 8) |
+			((unsigned int)buffer[7]); // conversion from big to little endian
+	data->nr_labels = n;
+
+	printf("nr_labels = %d\n", n);
+
+	data->labels = malloc(sizeof(char) * n);
+	if (!data->labels) { // checking the malloc
+		perror("data->labels in load_idx1_file couldn't be allocated");
+		return 1;
+	}
+
+	x = fread(data->labels, 1, n, idx);
+	if (x != n) { // checking if fread stopped
+		free(data->labels);
+		perror("fread at labels in load_idx1_file stopped early");
+		return 1;
+	}
+
+	return 0;
+}
+
+void print_image(dataset_t data, int image_index)
+{
+	printf("the letter %c is in the image\n", 'a' + 1 - data->labels[image_index]);
+	for (int i = 0; i < 28; i++) {
+		for (int j = 0; j < 28; j++)
+		 printf("%3hhu ", data->images[image_index][i * 28 + j]);
+	printf("\n");
+	}
+	printf("\n");
+}
+
+void destroy_dataset(dataset_t *data)
+{
+	dataset_t aux = *data;
+	free(aux->labels);
+	for (int i = 0; i < aux->nr_images; i++)
+		free(aux->images[i]);
+	free(aux->images);
+	free(*data);
 }

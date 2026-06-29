@@ -31,5 +31,8 @@ debug: clean dirs $(TARGET)
 run: all
 	./$(TARGET)
 
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all ./$(TARGET)
+
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)

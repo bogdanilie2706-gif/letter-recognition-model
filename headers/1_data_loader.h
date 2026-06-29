@@ -1,16 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct idx1 {
+typedef struct dataset {
 	int nr_labels;
-	char *labels[2];
+	char *labels;
 	// labels[0] = index | labels[1] = value
-} idx1, *idx1_t;
 
-typedef struct idx3 {
 	int nr_images;
 	char **images;
-} idx3, *idx3_t;
+	// images[i] = image
+} dataset, *dataset_t;
 
 
-idx3_t load_idx3_file(FILE *idx);
+int load_idx3_file(FILE *idx, dataset_t data);
+int load_idx1_file(FILE *idx, dataset_t data);
+void print_image(dataset_t data, int image_index);
+void destroy_dataset(dataset_t *data);
+
+
