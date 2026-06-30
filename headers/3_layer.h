@@ -1,7 +1,7 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "headers/2_matrix.h"
+#include "../headers/2_matrix.h"
 
 typedef struct layer_struct {
 	int input_size;
@@ -25,13 +25,13 @@ typedef struct layer_struct {
 
 // allocates a layer with given input/output sizes, sets up weights and bias matrices
 // does NOT randomly initialize weights, call layer_init_weights function for that
-layer_t layer_create(int input_size, int output_size,
+layer_t create_layer(int input_size, int output_size,
 					  float (*activation_func)(float),
 					  float (*activation_derivative)(float));
 
 // frees the whole layer_t structure along with the matrices
 // does NOT touch next/prev layers, caller is responsible for unlinking first
-void layer_free(layer_t *l);
+void free_layer(layer_t *l);
 
 // randomly initializes weights and bias for this layer
 // caller decides the range
@@ -51,10 +51,8 @@ matrix_t layer_forward(layer_t l, matrix_t input);
 // input is the original input this layer received during forward pass
 matrix_t layer_backward(layer_t l, matrix_t input, matrix_t grad_output);
 
-/* --- Weight update --- */
-
 // updates weights and bias using their stored gradients and a learning rate
 // weights -= learning_rate * weights_grad, same for bias
 void layer_update(layer_t l, float learning_rate);
 
-#endif /* LAYER_H */
+#endif
