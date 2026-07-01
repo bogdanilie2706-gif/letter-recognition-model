@@ -7,6 +7,7 @@ typedef struct layer_struct {
 	int input_size;
 	int output_size;
 
+	matrix_t input;
 	matrix_t weights;       // (input_size x output_size)
 	matrix_t bias;          // (1 x output_size), one bias per output neuron
 
@@ -49,7 +50,7 @@ matrix_t layer_forward(layer_t l, matrix_t input);
 // to the previous layer (gradient w.r.t. this layer's input)
 // grad_output is the gradient of the loss w.r.t. this layer's activation
 // input is the original input this layer received during forward pass
-matrix_t layer_backward(layer_t l, matrix_t input, matrix_t grad_output);
+matrix_t layer_backward(layer_t l, matrix_t grad_output);
 
 // updates weights and bias using their stored gradients and a learning rate
 // weights -= learning_rate * weights_grad, same for bias
