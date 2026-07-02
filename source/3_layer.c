@@ -1,8 +1,8 @@
 #include "../headers/3_layer.h"
 
 layer_t create_layer(int input_size, int output_size,
-					  float (*activation_func)(float),
-					  float (*activation_derivative)(float))
+					  matrix_t (*activation_func)(matrix_t),
+					  matrix_t (*activation_derivative)(matrix_t))
 {
 	layer_t layer = malloc(sizeof(layer_struct));
 	if (!layer) { // checking allocation for layer
@@ -69,7 +69,7 @@ matrix_t layer_forward(layer_t layer, matrix_t input)
 	}
 	layer->z = matrix_add_bias(temp, layer->bias);
 	free_matrix(&temp);
-	layer->activation = apply_matrix(layer->z, layer->activation_func);
+	layer->activation = layer->activation_func(layer->z);
 	if (!layer->z || !layer->activation) {
 		perror("z or activation couldn't be allocated by add bias or apply in layer_forward");
 		return NULL;
@@ -85,7 +85,7 @@ matrix_t layer_backward(layer_t layer, matrix_t grad_output)
 	if (layer->bias_grad)    free_matrix(&layer->bias_grad);
 
 	// chain rule: gradient w.r.t. z (pre-activation output)
-	matrix_t deriv = apply_matrix(layer->z, layer->activation_derivative);
+	matrix_t deriv = layer->activation_derivative(layer->z);
 	matrix_t grad_z = matrix_elementwise_multiply(grad_output, deriv);
 	if (!grad_z || !deriv) {
 		perror("grad_z or deriv couldn't be allocated by apply and elem_mul in layer_backward");

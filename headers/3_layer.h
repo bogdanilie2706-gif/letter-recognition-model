@@ -17,8 +17,8 @@ typedef struct layer_struct {
 	matrix_t weights_grad;  // gradient of loss w.r.t. weights, computed during backward pass
 	matrix_t bias_grad;     // gradient of loss w.r.t. bias, computed during backward pass
 
-	float (*activation_func)(float);       // activation function applied elementwise to z
-	float (*activation_derivative)(float); // derivative of activation_func, needed for backprop
+	matrix_t (*activation_func)(matrix_t);       // activation function applied elementwise to z
+	matrix_t (*activation_derivative)(matrix_t); // derivative of activation_func, needed for backprop
 
 	struct layer_struct *next;
 	struct layer_struct *prev;
@@ -27,8 +27,8 @@ typedef struct layer_struct {
 // allocates a layer with given input/output sizes, sets up weights and bias matrices
 // does NOT randomly initialize weights, call layer_init_weights function for that
 layer_t create_layer(int input_size, int output_size,
-					  float (*activation_func)(float),
-					  float (*activation_derivative)(float));
+					  matrix_t (*activation_func)(matrix_t),
+					  matrix_t (*activation_derivative)(matrix_t));
 
 // frees the whole layer_t structure along with the matrices
 // does NOT touch next/prev layers, caller is responsible for unlinking first
