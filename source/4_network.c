@@ -52,12 +52,35 @@ void network_add_layer(network_t net, int input_size, int output_size,
 
 matrix_t network_forward(network_t net, matrix_t input)
 {
-
+    if (!net)
+        return NULL;
+    layer_t crt_layer = net->head;
+    matrix_t crt_input = input;
+    while (crt_layer) {
+        crt_input = layer_forward(crt_layer, crt_input);
+        if(!crt_input) {
+            perror ("crt_input is null by layer_forward in network_forward");
+            return NULL;
+        }
+        crt_layer = crt_layer->next;
+    }
+    return crt_input;
 }
 
 void network_backward(network_t net, matrix_t grad)
 {
-
+    if (!net)
+        return;
+    layer_t crt_layer = net->tail;
+    matrix_t crt_grad = grad;
+    while (crt_layer) {
+        crt_grad = layer_backward(crt_layer, crt_grad);
+        if (!crt_grad) {
+            perror ("crt_grad is null by layer_backward in network_backward");
+            return;
+        }
+        crt_layer = crt_layer->prev;
+    }
 }
 
 void network_update(network_t net, float learning_rate)
