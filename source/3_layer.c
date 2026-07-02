@@ -63,9 +63,17 @@ matrix_t layer_forward(layer_t layer, matrix_t input)
 
 	layer->input = copy_matrix(input); // will be used in backprop
 	matrix_t temp = multiply_matrix(input, layer->weights);
+	if (!layer->input || !temp) {
+		perror("temp and input couldn't be allocated by copy and mul in layer_forward");
+		return NULL;
+	}
 	layer->z = matrix_add_bias(temp, layer->bias);
 	free_matrix(&temp);
 	layer->activation = apply_matrix(layer->z, layer->activation_func);
+	if (!layer->z || !layer->activation) {
+		perror("z or activation couldn't be allocated by add bias or apply in layer_forward");
+		return NULL;
+	}
 
 	return layer->activation;
 }
@@ -79,21 +87,37 @@ matrix_t layer_backward(layer_t layer, matrix_t grad_output)
 	// chain rule: gradient w.r.t. z (pre-activation output)
 	matrix_t deriv = apply_matrix(layer->z, layer->activation_derivative);
 	matrix_t grad_z = matrix_elementwise_multiply(grad_output, deriv);
+	if (!grad_z || !deriv) {
+		perror("grad_z or deriv couldn't be allocated by apply and elem_mul in layer_backward");
+		return NULL;
+	}
 	free_matrix(&deriv);
 
 	// building the weights gradient
 	matrix_t input_tran = transpose_matrix(layer->input);
 	layer->weights_grad = multiply_matrix(input_tran, grad_z);
+	if (!input_tran || !layer->weights_grad) {
+		perror("input_tran or weights_grad couldn't be allocated by transpose and mul in layer_backward");
+		return NULL;
+	}
 	free_matrix(&input_tran);
 
 	// building the bias gradient
 	layer->bias_grad = matrix_sum_rows(grad_z);
+	if (!layer->bias_grad) {
+		perror("bias_grad couldn't be allocated by sum_rows in layer_backward");
+		return NULL;
+	}
 
 	// building the gradient for the next layer
 	matrix_t weights_tran = transpose_matrix(layer->weights);
 	matrix_t back_grad = multiply_matrix(grad_z, weights_tran); 
 	// grad_z: (batch x output_size) * weights_T: (output_size x input_size)
 	// result: (batch x input_size)
+	if (!weights_tran || !back_grad) {
+		perror("weights_tran or back_grad couldn't be allocated by tran and mul in layer_backward");
+		return NULL;
+	}
 
 	free_matrix(&weights_tran);
 	free_matrix(&grad_z);
@@ -104,11 +128,19 @@ matrix_t layer_backward(layer_t layer, matrix_t grad_output)
 void layer_update(layer_t layer, float learning_rate)
 {
 	matrix_t temp = matrix_scalar_multiply(layer->weights_grad, learning_rate);
+	if (!temp) {
+		perror("temp couldn't be allocated by scalar_mul for weights_grad in layer_update");
+		return;
+	}
 	matrix_t aux = layer->weights;
 	layer->weights = temp;
 	free(aux);
 
 	temp = matrix_scalar_multiply(layer->bias_grad, learning_rate);
+	if (!temp) {
+		perror("temp couldn't be allocated by scalar_mul for bias_grad in layer_update");
+		return;
+	}
 	aux = layer->bias;
 	layer->bias = temp;
 	free(aux);
