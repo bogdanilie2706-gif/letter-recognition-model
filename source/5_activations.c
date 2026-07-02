@@ -1,0 +1,59 @@
+#include "../headers/5_activations.h"
+
+static float relu_elem(float value)
+{
+    if (value > 0)
+        return value; // max(0,x)
+    return 0;
+}
+
+static float relu_derivative_elem(float value)
+{
+    if (value > 0)
+        return 1;
+    return 0;
+}
+
+matrix_t relu(matrix_t z)
+{
+    return apply_matrix(z, relu_elem);
+}
+
+matrix_t relu_derivative(matrix_t z)
+{
+    return apply_matrix(z, relu_derivative_elem);
+}
+
+matrix_t softmax(matrix_t z)
+{
+    matrix_t rez = create_matrix(z->rows, z->cols);
+    for (int i = 0; i < z->rows; i++) {
+        float max = z->data[i * z->cols]; // first element of each column
+        
+        for (int j = 1; j < z->cols; j++) {
+            if (max < z->data[i * z->cols + j])
+                max = z->data[i * z->cols + j]; // searches for each row
+        }
+
+        float sum = 0.0f;
+        for (int j = 0; j < z->cols; j++) {
+            rez->data[i * rez->cols + j] = 
+                expf(z->data[i * z->cols + j] - max);
+            // writes in the created matrix, rez, the exponentiated values
+
+            // creates the sum
+            sum += rez->data[i * rez->cols + j];
+        }
+        for (int j = 0; j < rez->cols; j++)
+            rez->data[i * rez->cols + j] /= sum; 
+        // makes the final division on each elemment on the row
+    }
+    return rez;
+}
+
+matrix_t identity(matrix_t z)
+{
+    matrix_t id = create_matrix(z->rows, z->cols);
+    fill_matrix(id, 1.0f); // returns a matrix full of 1.0f
+    return id;
+}
