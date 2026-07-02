@@ -7,7 +7,7 @@ network_t create_network()
         perror("couldn't allocate net in create_network");
         return NULL;
     }
-    net->head = net->tail = NULL;
+    net->head = net->tail = NULL; // empty list
     net->nr_layers = 0;
     return net;
 }
@@ -53,29 +53,31 @@ void network_add_layer(network_t net, int input_size, int output_size,
 matrix_t network_forward(network_t net, matrix_t input)
 {
     if (!net)
-        return NULL;
-    layer_t crt_layer = net->head;
+        return NULL; // edge case
+
+    layer_t crt_layer = net->head; // starting from the 'input' layer
     matrix_t crt_input = input;
     while (crt_layer) {
         crt_input = layer_forward(crt_layer, crt_input);
-        if(!crt_input) {
+        if(!crt_input) { // checking for null return
             perror ("crt_input is null by layer_forward in network_forward");
             return NULL;
         }
         crt_layer = crt_layer->next;
     }
-    return crt_input;
+    return crt_input; // returning the output
 }
 
 void network_backward(network_t net, matrix_t grad)
 {
     if (!net)
-        return;
-    layer_t crt_layer = net->tail;
+        return; // edge case
+
+    layer_t crt_layer = net->tail; // starting from the 'output' layer
     matrix_t crt_grad = grad;
     while (crt_layer) {
         crt_grad = layer_backward(crt_layer, crt_grad);
-        if (!crt_grad) {
+        if (!crt_grad) { // checking for null return
             perror ("crt_grad is null by layer_backward in network_backward");
             return;
         }
@@ -85,5 +87,12 @@ void network_backward(network_t net, matrix_t grad)
 
 void network_update(network_t net, float learning_rate)
 {
-
+    if (!net)
+        return; // edge case
+        
+    layer_t crt_layer = net->head;
+    while (crt_layer) { // learning rate to be decided by caller
+        layer_update(crt_layer, learning_rate);
+        crt_layer = crt_layer->prev;
+    }
 }
