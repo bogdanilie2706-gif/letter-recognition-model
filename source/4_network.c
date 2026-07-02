@@ -2,7 +2,7 @@
 
 network_t create_network()
 {
-    network_t net = malloc(sizeof(network_size));
+    network_t net = malloc(sizeof(network_struct));
     if (!net) { // checking allocation
         perror("couldn't allocate net in create_network");
         return NULL;
@@ -17,7 +17,7 @@ void free_network(network_t *net)
     layer_t crt = (*net)->head;
     while (crt) { // freeing every layer in the list
         layer_t aux = crt->next;
-        free_layer(crt);
+        free_layer(&crt);
         crt = aux;
     }
     free(*net);
@@ -68,21 +68,27 @@ matrix_t network_forward(network_t net, matrix_t input)
     return crt_input; // returning the output
 }
 
-void network_backward(network_t net, matrix_t grad)
+void network_backward(network_t net, matrix_t *grad)
 {
     if (!net)
         return; // edge case
 
     layer_t crt_layer = net->tail; // starting from the 'output' layer
-    matrix_t crt_grad = grad;
+    matrix_t crt_grad = *grad; // will free the matrix from the caller
     while (crt_layer) {
-        crt_grad = layer_backward(crt_layer, crt_grad);
+        matrix_t new_grad = layer_backward(crt_layer, crt_grad);
+        if (crt_grad == *grad)
+            free_matrix(grad);
+        else
+            free_matrix(&crt_grad);
+        crt_grad = new_grad;
         if (!crt_grad) { // checking for null return
             perror ("crt_grad is null by layer_backward in network_backward");
             return;
         }
         crt_layer = crt_layer->prev;
     }
+    free_matrix(&crt_grad);
 }
 
 void network_update(network_t net, float learning_rate)
@@ -93,6 +99,6 @@ void network_update(network_t net, float learning_rate)
     layer_t crt_layer = net->head;
     while (crt_layer) { // learning rate to be decided by caller
         layer_update(crt_layer, learning_rate);
-        crt_layer = crt_layer->prev;
+        crt_layer = crt_layer->next;
     }
 }

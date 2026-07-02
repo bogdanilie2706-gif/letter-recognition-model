@@ -20,9 +20,9 @@ typedef struct layer_struct {
 	float (*activation_func)(float);       // activation function applied elementwise to z
 	float (*activation_derivative)(float); // derivative of activation_func, needed for backprop
 
-	struct layer *next;
-	struct layer *prev;
-} layer_size, *layer_t;
+	struct layer_struct *next;
+	struct layer_struct *prev;
+} layer_struct, *layer_t;
 
 // allocates a layer with given input/output sizes, sets up weights and bias matrices
 // does NOT randomly initialize weights, call layer_init_weights function for that

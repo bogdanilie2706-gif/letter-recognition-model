@@ -5,9 +5,9 @@
 
 typedef struct network_struct {
     layer_t head; // the first layer from the input
-    layer_t tail; // the last layer - the output
+    layer_t tail; // the last layer from the output
     int nr_layers;
-} network_size, *network_t; 
+} network_struct, *network_t; 
 
 // initializez the network, makes the head and tail NULL 
 // and the nr_layer 0
@@ -26,7 +26,8 @@ matrix_t network_forward(network_t net, matrix_t input);
 
 // creates the weights and biases gradients trough 
 // backprop based on the grad given by prediction - target
-void network_backward(network_t net, matrix_t grad);
+// also frees the grad matrix inside so the caller doesn;t have to
+void network_backward(network_t net, matrix_t *grad);
 
 // updates the weights and biases with the 
 // gradients calculated in each layer

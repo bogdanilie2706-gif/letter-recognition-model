@@ -4,7 +4,7 @@ layer_t create_layer(int input_size, int output_size,
 					  float (*activation_func)(float),
 					  float (*activation_derivative)(float))
 {
-	layer_t layer = malloc(sizeof(layer_size));
+	layer_t layer = malloc(sizeof(layer_struct));
 	if (!layer) { // checking allocation for layer
 		perror("couldn't allocate layer_t structure in layer_create");
 		return NULL;

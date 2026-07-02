@@ -37,7 +37,7 @@ int load_idx3_file(FILE *idx, dataset_t data)
 			((unsigned int)buffer[6] << 8) |
 			((unsigned int)buffer[7]); // conversion from big to little endian
 
-	printf("nr images = %d\n", n);
+	printf("nr_images = %d\n", n);
 
 	data->nr_samples = n;
 	data->images = malloc(sizeof(unsigned char *) * n);
@@ -139,5 +139,3 @@ void destroy_dataset(dataset_t *data)
 	}
 	free(*data);
 }
-
-
