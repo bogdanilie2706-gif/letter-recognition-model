@@ -2,6 +2,7 @@
 #define LOSS_H
 
 #include "../headers/2_matrix.h"
+#include <math.h>
 
 // for monitoring progress, not for actual training
 float cross_entropy_loss(matrix_t predicted, matrix_t target);
