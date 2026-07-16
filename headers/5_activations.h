@@ -2,7 +2,6 @@
 #define ACTIVATIONS_H
 
 #include "../headers/2_matrix.h"
-#include <math.h>
 
 // used for hidden layers in layer_forward
 matrix_t relu(matrix_t z);
