@@ -117,7 +117,7 @@ int load_idx1_file(FILE *idx, dataset_t data)
 
 void print_image(dataset_t data, int image_index)
 {
-	printf("the letter %c is in the image\n", 'a' + 1 - data->labels[image_index]);
+	printf("the letter %c is in the image\n", 'a' - 1 + data->labels[image_index]);
 	for (int i = 0; i < 28; i++) {
 		for (int j = 0; j < 28; j++)
 		 printf("%3hhu ", data->images[image_index][i * 28 + j]);
