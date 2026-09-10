@@ -12,13 +12,14 @@ network_t create_network()
     return net;
 }
 
-void network_init_weights(network_t net, float min, float max)
+void network_init_weights(network_t net)
 {
     if (!net)
         return;
     layer_t crt = net->head;
     while (crt) {
-        layer_init_weights(crt, min, max);
+        float scale = sqrtf(2.0f / crt->input_size);
+        layer_init_weights(crt, - scale, scale); // He init
         crt = crt->next;
     }
 }
@@ -39,7 +40,7 @@ void free_network(network_t *net)
 }
 
 void network_add_layer(network_t net, int input_size, int output_size,
-	float (*activation_func)(float), float (*activation_derivative)(float))
+	matrix_t (*activation_func)(matrix_t), matrix_t (*activation_derivative)(matrix_t))
 {
     if (!net) { // checking if net is initialized
         perror("couldn't add layer in network_add_layer, net was NULL");
