@@ -12,8 +12,22 @@ network_t create_network()
     return net;
 }
 
+void network_init_weights(network_t net, float min, float max)
+{
+    if (!net)
+        return;
+    layer_t crt = net->head;
+    while (crt) {
+        layer_init_weights(crt, min, max);
+        crt = crt->next;
+    }
+}
+
 void free_network(network_t *net)
 {
+    if (!*net)
+        return;
+
     layer_t crt = (*net)->head;
     while (crt) { // freeing every layer in the list
         layer_t aux = crt->next;

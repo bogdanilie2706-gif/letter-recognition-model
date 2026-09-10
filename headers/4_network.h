@@ -4,8 +4,8 @@
 #include "../headers/3_layer.h"
 
 typedef struct network_struct {
-    layer_t head; // the first layer from the input
-    layer_t tail; // the last layer from the output
+    layer_t head; // the first layer (the input layer)
+    layer_t tail; // the last layer (the output layer)
     int nr_layers;
 } network_struct, *network_t; 
 
@@ -20,6 +20,9 @@ void free_network(network_t *net);
 // appends a new layer to the tail of the network
 void network_add_layer(network_t net, int input_size, int output_size,
 	float (*activation_func)(float), float (*activation_derivative)(float));
+
+// initializez all of the layers weights
+void network_init_weights(network_t net);
 
 // takes the input and returns the output made by the network
 matrix_t network_forward(network_t net, matrix_t input);
