@@ -26,7 +26,7 @@ matrix_t network_forward(network_t net, matrix_t input);
 
 // creates the weights and biases gradients trough 
 // backprop based on the grad given by prediction - target
-// also frees the grad matrix inside so the caller doesn;t have to
+// also frees the grad matrix inside so the caller doesn't have to
 void network_backward(network_t net, matrix_t *grad);
 
 // updates the weights and biases with the 
