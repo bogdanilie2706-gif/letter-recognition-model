@@ -11,7 +11,7 @@ layer_t create_layer(int input_size, int output_size,
 	}
 
 	// they will be allocated during the training
-	layer->z = layer->activation = layer->weights_grad = layer->bias_grad = NULL;
+	layer->z = layer->activation = layer->weights_grad = layer->bias_grad = layer->input = NULL;
 	layer->next = layer->prev = NULL;
 
 	// creates the matrices that will be used 
@@ -22,6 +22,7 @@ layer_t create_layer(int input_size, int output_size,
 		free_layer(&layer); // only frees allocated blocks
 		return NULL;
 	}
+	fill_matrix(layer->bias, 0.0f);
 
 	// functions that will be used for this layer in training
 	layer->activation_func = activation_func;
@@ -44,6 +45,7 @@ void free_layer(layer_t *layer)
 	free_matrix(&aux->activation);
 	free_matrix(&aux->weights_grad);
 	free_matrix(&aux->bias_grad);
+	// free_matrix(&aux->input);
 
 	free(*layer);
 	*layer = NULL;
@@ -133,8 +135,9 @@ void layer_update(layer_t layer, float learning_rate)
 		return;
 	}
 	matrix_t aux = layer->weights;
-	layer->weights = temp;
-	free(aux);
+	layer->weights = subtract_matrix(aux ,temp);
+	free_matrix(&aux);
+	free_matrix(&temp);
 
 	temp = matrix_scalar_multiply(layer->bias_grad, learning_rate);
 	if (!temp) {
@@ -142,6 +145,7 @@ void layer_update(layer_t layer, float learning_rate)
 		return;
 	}
 	aux = layer->bias;
-	layer->bias = temp;
-	free(aux);
+	layer->bias = subtract_matrix(aux, temp);
+	free_matrix(&aux);
+	free_matrix(&temp);
 }

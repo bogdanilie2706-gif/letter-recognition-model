@@ -33,6 +33,7 @@ matrix_t multiply_matrix(matrix_t a, matrix_t b);
 matrix_t add_matrix(matrix_t a, matrix_t b);
 
 // subtracts two matrices of same dimensions (for backpropagation / gradient)
+// (a - b)
 matrix_t subtract_matrix(matrix_t a, matrix_t b);
 
 // adds the  bias (1 x n) to each row of a matrix (batch x n)

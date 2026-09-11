@@ -103,13 +103,17 @@ static int good_guess_counter(matrix_t output, matrix_t target)
 	return good_guesses;
 }
 
-static void print_epoch_info(int epoch_nr, float loss, int good_guesses, int nr_images)
+static void print_epoch_info(int epoch_nr, float loss, int train_good_guesses, int test_good_guesses, int train_nr_images, int test_nr_images)
 {
 		printf("\n---------- epoch number %d ----------\n", epoch_nr);
 		printf("Loss: %.6f\n", loss);
-		printf("Right guesses made: %d/%d", good_guesses, nr_images);
-		printf("Percentage of right guesses: %.6f%%", (float)((float)good_guesses/(float)nr_images) * 100.0f);
-		printf("\n ------------------------------------\n");
+		
+		printf("Right guesses made in train: %d/%d\n", train_good_guesses, train_nr_images);
+		printf("Percentage of train right guesses: %.6f%%\n", (float)((float)train_good_guesses/(float)train_nr_images) * 100.0f);
+
+		printf("Right guesses made in test: %d/%d\n", test_good_guesses, test_nr_images);
+		printf("Percentage of test right guesses: %.6f%%\n", (float)((float)test_good_guesses/(float)test_nr_images) * 100.0f);
+		printf("---------------------------------------\n");
 }
 
 void train_letter_model(dataset_t train, dataset_t test, network_t net, int batch_size, float learning_rate, int nr_epochs)
@@ -143,31 +147,41 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 	matrix_t output, grad;
 	for (int j = 0; j < nr_epochs; j++) {
 
-		printf("Starting epoch nr %d \n", j);
+		printf("Starting epoch nr %d \n", j + 1);
 
 		// train section
+		int train_good_guesses = 0;
 		for (int i = 0; i < train_nr_batches; i++) {
+			printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
+
 			output = network_forward(net, train_batches->input[i]); // output free is handled by layer_forward func
 			grad = cross_entropy_gradient(output, train_batches->target[i]);
+			train_good_guesses += good_guess_counter(output, train_batches->target[i]);
 			network_backward(net, &grad); // grad is freed inside the network_backward func
 			network_update(net, learning_rate);
+
+			// printf("ended the batch with succes\n\n");
 		}
 
 		printf("Training finished, starting testing\n");
 
 		// test section
-		int good_guesses = 0;
+		int test_good_guesses = 0;
 		float loss = 0.0f;
 		for (int i = 0; i < test_nr_batches; i++) {
+			// printf("starting batch nr %d out of %d\n", i + 1, test_nr_batches);
+
 			output = network_forward(net, test_batches->input[i]);
-			good_guesses += good_guess_counter(output, test_batches->target[i]);
+			test_good_guesses += good_guess_counter(output, test_batches->target[i]);
 			loss += cross_entropy_loss(output, test_batches->target[i]);
+
+			// printf("ended the batch with succes\n\n");
 		}
 		loss /= test_nr_batches;
 
 		printf("Testing finished\n");
 
-		print_epoch_info(j, loss, good_guesses, test_nr_batches * batch_size);
+		print_epoch_info(j + 1, loss, train_good_guesses, test_good_guesses, test_nr_batches * batch_size, train_nr_batches * batch_size);
 
 		if (j < nr_epochs - 1)
 			shuffle_batches(train, train_batches, index);

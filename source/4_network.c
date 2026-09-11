@@ -80,6 +80,7 @@ matrix_t network_forward(network_t net, matrix_t input)
         }
         crt_layer = crt_layer->next;
     }
+    // printf("network_forward has given the output on this batch\n");
     return crt_input; // returning the output
 }
 
