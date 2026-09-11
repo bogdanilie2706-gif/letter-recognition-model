@@ -6,8 +6,8 @@
 
 typedef struct dataset {
 	int nr_samples;
-	char *labels;
-	char **images;
+	unsigned char *labels;
+	unsigned char **images;
 	// images[i] = image
 } dataset, *dataset_t;
 

@@ -47,7 +47,7 @@ int load_idx3_file(FILE *idx, dataset_t data)
 	}
 
 	int ok = 1, i;
-	char aux[784]; // for reading the transposed image
+	unsigned char aux[784]; // for reading the transposed image
 	for (i = 0; i < n; i++) {
 		
 		data->images[i] = malloc(sizeof(unsigned char) * 784);
@@ -99,7 +99,7 @@ int load_idx1_file(FILE *idx, dataset_t data)
 
 	printf("nr_labels = %d\n", n);
 
-	data->labels = malloc(sizeof(char) * n);
+	data->labels = malloc(sizeof(unsigned char) * n);
 	if (!data->labels) { // checking the malloc
 		perror("data->labels in load_idx1_file couldn't be allocated");
 		return 1;

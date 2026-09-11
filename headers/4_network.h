@@ -19,7 +19,7 @@ void free_network(network_t *net);
 
 // appends a new layer to the tail of the network
 void network_add_layer(network_t net, int input_size, int output_size,
-	float (*activation_func)(float), float (*activation_derivative)(float));
+	matrix_t (*activation_func)(matrix_t), matrix_t (*activation_derivative)(matrix_t));
 
 // initializez all of the layers weights
 void network_init_weights(network_t net);

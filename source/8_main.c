@@ -10,22 +10,24 @@ int main(void)
         return 1;
     }
     
-    int test_ret = load_dataset(test_data, "data/test_labels_idx1",
-        "data/test_images_idx3");
-    int train_ret = load_dataset(train_data, "data/train_labels_idx1",
-        "data/train_images_idx3");
-
+    int test_ret = load_dataset(test_data, "data/test_labels_idx1","data/test_images_idx3");
+    int train_ret = load_dataset(train_data, "data/train_labels_idx1","data/train_images_idx3");
     if (test_ret || train_ret) {
-        perror("error loading data");
+        perror("error loading data in main");
         destroy_dataset(&train_data);
         destroy_dataset(&test_data);
+        return 1;
     }
 
-    for (int i = 0; i < 10; i++) {
-        print_image(test_data, rand() % (test_data->nr_samples + 1));
-        print_image(train_data, rand() % (train_data->nr_samples + 1));
-    }
+    network_t net = create_network();
+    network_add_layer(net, 28 * 28, 128, relu, relu_derivative);
+    network_add_layer(net, 128, 64, relu, relu_derivative);
+    network_add_layer(net, 64, 26, softmax, identity);
+    network_init_weights(net);
 
+    train_letter_model(train_data, test_data, net, 32, 0.004, 10);
+
+    free_network(&net);
     destroy_dataset(&test_data);
     destroy_dataset(&train_data);
     return 0;
