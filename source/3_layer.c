@@ -45,7 +45,7 @@ void free_layer(layer_t *layer)
 	free_matrix(&aux->activation);
 	free_matrix(&aux->weights_grad);
 	free_matrix(&aux->bias_grad);
-	// free_matrix(&aux->input);
+	free_matrix(&aux->input);
 
 	free(*layer);
 	*layer = NULL;

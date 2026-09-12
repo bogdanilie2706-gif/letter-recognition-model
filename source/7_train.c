@@ -103,17 +103,17 @@ static int good_guess_counter(matrix_t output, matrix_t target)
 	return good_guesses;
 }
 
-static void print_epoch_info(int epoch_nr, float loss, int train_good_guesses, int test_good_guesses, int train_nr_images, int test_nr_images)
+static void print_epoch_info(FILE *file, int epoch_nr, float loss, int train_good_guesses, int test_good_guesses, int train_nr_images, int test_nr_images)
 {
-		printf("\n---------- epoch number %d ----------\n", epoch_nr);
-		printf("Loss: %.6f\n", loss);
+		fprintf(file, "\n---------- epoch number %d ----------\n", epoch_nr);
+		fprintf(file, "Loss: %.6f\n", loss);
 		
-		printf("Right guesses made in train: %d/%d\n", train_good_guesses, train_nr_images);
-		printf("Percentage of train right guesses: %.6f%%\n", (float)((float)train_good_guesses/(float)train_nr_images) * 100.0f);
+		fprintf(file, "Right guesses made in train: %d/%d\n", train_good_guesses, train_nr_images);
+		fprintf(file, "Percentage of train right guesses: %.6f%%\n", (float)((float)train_good_guesses/(float)train_nr_images) * 100.0f);
 
-		printf("Right guesses made in test: %d/%d\n", test_good_guesses, test_nr_images);
-		printf("Percentage of test right guesses: %.6f%%\n", (float)((float)test_good_guesses/(float)test_nr_images) * 100.0f);
-		printf("---------------------------------------\n");
+		fprintf(file, "Right guesses made in test: %d/%d\n", test_good_guesses, test_nr_images);
+		fprintf(file, "Percentage of test right guesses: %.6f%%\n", (float)((float)test_good_guesses/(float)test_nr_images) * 100.0f);
+		fprintf(file, "---------------------------------------\n");
 }
 
 void train_letter_model(dataset_t train, dataset_t test, network_t net, int batch_size, float learning_rate, int nr_epochs)
@@ -152,7 +152,7 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 		// train section
 		int train_good_guesses = 0;
 		for (int i = 0; i < train_nr_batches; i++) {
-			printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
+			// printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
 
 			output = network_forward(net, train_batches->input[i]); // output free is handled by layer_forward func
 			grad = cross_entropy_gradient(output, train_batches->target[i]);
@@ -181,7 +181,9 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 
 		printf("Testing finished\n");
 
-		print_epoch_info(j + 1, loss, train_good_guesses, test_good_guesses, test_nr_batches * batch_size, train_nr_batches * batch_size);
+		FILE *file = fopen("model_epoch_output.txt", "a");
+		print_epoch_info(file, j + 1, loss, train_good_guesses, test_good_guesses, train_nr_batches * batch_size, test_nr_batches * batch_size);
+		fclose(file);
 
 		if (j < nr_epochs - 1)
 			shuffle_batches(train, train_batches, index);
