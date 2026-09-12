@@ -39,13 +39,40 @@ void free_network(network_t *net)
     *net = NULL;
 }
 
-void network_add_layer(network_t net, int input_size, int output_size,
-	matrix_t (*activation_func)(matrix_t), matrix_t (*activation_derivative)(matrix_t))
+// handles the functions that will be used by the layers
+static void get_activation_pair(activation_code_t code, matrix_t (**activation_func)(matrix_t),
+    matrix_t (**activation_derivative)(matrix_t))
+{
+    switch (code) {
+    
+    case ACTIVATION_RELU: {
+        *activation_func = relu;
+        *activation_derivative = relu_derivative;
+        break;
+    }
+    
+    case ACTIVATION_SOFTMAX: {
+        *activation_func = softmax;
+        *activation_derivative = identity;
+        break;
+    }
+
+    default: {
+        perror("there is no function with this name");
+    }
+    }
+}
+
+void network_add_layer(network_t net, int input_size, int output_size, activation_code_t code)
 {
     if (!net) { // checking if net is initialized
         perror("couldn't add layer in network_add_layer, net was NULL");
         return;
     }
+    matrix_t (*activation_func)(matrix_t) = NULL; // signatures for the functions
+    matrix_t (*activation_derivative)(matrix_t) = NULL;
+
+    get_activation_pair(code, &activation_func, &activation_derivative);
 
     layer_t layer = create_layer(input_size, output_size,
                     activation_func, activation_derivative);
@@ -53,6 +80,8 @@ void network_add_layer(network_t net, int input_size, int output_size,
         perror("layer couldn't be created in network_add_layer");
         return;
     }
+
+    layer->activation_code = code;
 
     if (!net->head) { // if the list is empty
         net->head = layer;

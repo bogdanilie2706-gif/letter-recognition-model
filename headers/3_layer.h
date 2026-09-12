@@ -3,6 +3,11 @@
 
 #include "../headers/2_matrix.h"
 
+typedef enum {
+    ACTIVATION_RELU,
+    ACTIVATION_SOFTMAX
+} activation_code_t;
+
 typedef struct layer_struct {
 	int input_size;
 	int output_size;
@@ -17,6 +22,7 @@ typedef struct layer_struct {
 	matrix_t weights_grad;  // gradient of loss w.r.t. weights, computed during backward pass
 	matrix_t bias_grad;     // gradient of loss w.r.t. bias, computed during backward pass
 
+	activation_code_t activation_code;
 	matrix_t (*activation_func)(matrix_t);       // activation function applied elementwise to z
 	matrix_t (*activation_derivative)(matrix_t); // derivative of activation_func, needed for backprop
 

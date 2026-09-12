@@ -39,4 +39,20 @@ void destroy_batches_struct(batches_t *batches);
 // used beofre each epoch
 void shuffle_batches(dataset_t df, batches_t batches, int *index);
 
+// it saves the data the weights and biases of each
+// layer along with input_size, output_size and 
+// activation_code its all saved in a binary format:
+//
+// nr_layers (int)
+// for each layer:
+//     input_size (int)
+//     output_size (int)
+//     activation_code (int)
+//     weights data: input_size * output_size floats (raw, row-major)
+//     bias data: output_size floats (raw)
+void save_model(network_t net, char *file_name);
+
+// reads the whole model from the file with filename given
+network_t load_model(char *filename);
+
 #endif

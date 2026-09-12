@@ -26,7 +26,7 @@ void fill_matrix(matrix_t m, float value);
 void matrix_random_init(matrix_t m, float min, float max);
 
 // multiplies two matrices a(m x n) * b(n x p) = results (m x p)
-// check a->cols == b->rows
+// checks a->cols == b->rows
 matrix_t multiply_matrix(matrix_t a, matrix_t b);
 
 // adds two matrices of same dimensions toghether

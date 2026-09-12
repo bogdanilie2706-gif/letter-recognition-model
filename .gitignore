@@ -10,4 +10,5 @@ env/
 data/
 bin/
 obj/
+models/
 model_epoch_output.txt

@@ -152,7 +152,7 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 		// train section
 		int train_good_guesses = 0;
 		for (int i = 0; i < train_nr_batches; i++) {
-			// printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
+			printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
 
 			output = network_forward(net, train_batches->input[i]); // output free is handled by layer_forward func
 			grad = cross_entropy_gradient(output, train_batches->target[i]);
@@ -193,4 +193,74 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 	free(index);
 	destroy_batches_struct(&test_batches);
 	destroy_batches_struct(&train_batches);
+}
+
+void save_model(network_t net, char *file_name)
+{
+    if (!net) {
+        perror("net is NULL in save_model, couldn't save the model");
+        return;
+    } // checking if there is a network
+
+    if (net->nr_layers == 0) {
+        perror("the network doesn't have any layers");
+        return;
+    } // checking if the network has any layer
+
+    FILE *file = fopen(file_name, "wb");
+    if (!file) {
+        perror("couldn't open the file in save_model");
+        return;
+    } // checking if the file could be opened
+
+    fwrite(&net->nr_layers, sizeof(int), 1, file);
+
+    layer_t crt = net->head;
+    while (crt) {
+        fwrite(&crt->input_size, sizeof(int), 1, file);
+        fwrite(&crt->output_size, sizeof(int), 1, file);
+        fwrite(&crt->activation_code, sizeof(int), 1, file);
+        fwrite(crt->weights->data, sizeof(float), crt->input_size * crt->output_size, file);
+        fwrite(crt->bias->data, sizeof(float), crt->output_size, file);
+        crt = crt->next;
+    }
+    fclose(file);
+}
+
+network_t load_model(char *file_name)
+{
+    FILE *file = fopen(file_name, "rb");
+    network_t net = create_network();
+    if (!net) {
+        perror("couldn't create network");
+        return NULL;
+    }
+    int nr_layers, input_size, output_size, activation_code, x;
+    x = fread(&nr_layers, sizeof(int), 1, file);
+    if (x != 1) { // checks if fread returned 1
+        perror("fread didn't read the nr_layers in load_model");
+        free_network(&net);
+        return NULL;
+    }
+    for (int i = 0; i < nr_layers; i++) {
+        x = fread(&input_size, sizeof(int), 1, file);
+        x += fread(&output_size, sizeof(int), 1, file);
+        x += fread(&activation_code, sizeof(int), 1, file);
+        if (x != 3) { // checking if the sum of the last 3 fread returns was 3
+            perror("fread didn't read the input, output or activation_code in load_model");
+            free_network(&net);
+            return NULL;
+        }
+
+        network_add_layer(net, input_size, output_size, (activation_code_t)activation_code);
+        x = fread(net->tail->weights->data, sizeof(float), input_size * output_size, file);
+        x += fread(net->tail->bias->data, sizeof(float), output_size, file);
+        if (x != input_size * output_size + output_size) { // checking if the last 2 fread returns were right
+            perror("fread didn't read weights or biases in load_model");
+            free_network(&net);
+            return NULL;
+        }
+    }
+    fclose(file);
+    return net;
 }

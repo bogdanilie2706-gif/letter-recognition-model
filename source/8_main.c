@@ -20,12 +20,20 @@ int main(void)
     }
 
     network_t net = create_network();
-    network_add_layer(net, 28 * 28, 128, relu, relu_derivative);
-    network_add_layer(net, 128, 64, relu, relu_derivative);
-    network_add_layer(net, 64, 26, softmax, identity);
+    network_add_layer(net, 28 * 28, 128, ACTIVATION_RELU);
+    network_add_layer(net, 128, 64, ACTIVATION_RELU);
+    network_add_layer(net, 64, 26, ACTIVATION_SOFTMAX);
     network_init_weights(net);
 
-    train_letter_model(train_data, test_data, net, 32, 0.004, 10);
+    train_letter_model(train_data, test_data, net, 32, 0.004, 1);
+
+    save_model(net, "le_bot_robot");
+    free_network(&net);
+    net = load_model("le_bot_robot");
+
+    train_letter_model(train_data, test_data, net, 32, 0.004, 1);
+
+    save_model(net, "ze_bot");
 
     free_network(&net);
     destroy_dataset(&test_data);

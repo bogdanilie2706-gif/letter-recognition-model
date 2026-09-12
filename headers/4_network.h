@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include "../headers/3_layer.h"
+#include "../headers/5_activations.h"
 
 typedef struct network_struct {
     layer_t head; // the first layer (the input layer)
@@ -18,8 +19,8 @@ network_t create_network();
 void free_network(network_t *net);
 
 // appends a new layer to the tail of the network
-void network_add_layer(network_t net, int input_size, int output_size,
-	matrix_t (*activation_func)(matrix_t), matrix_t (*activation_derivative)(matrix_t));
+// the code for each function is found in the enum in layer.h
+void network_add_layer(network_t net, int input_size, int output_size, activation_code_t code);
 
 // initializez all of the layers weights
 void network_init_weights(network_t net);
