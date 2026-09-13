@@ -5,7 +5,10 @@
 
 typedef enum {
     ACTIVATION_RELU,
-    ACTIVATION_SOFTMAX
+    ACTIVATION_SOFTMAX,
+	ACTIVATION_LEAKY_RELU,
+	ACTIVATION_TANH,
+	ACTIVATION_SIGMOID
 } activation_code_t;
 
 typedef struct layer_struct {

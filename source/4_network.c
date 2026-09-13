@@ -57,6 +57,24 @@ static void get_activation_pair(activation_code_t code, matrix_t (**activation_f
         break;
     }
 
+    case ACTIVATION_LEAKY_RELU: {
+        *activation_func = leaky_relu;
+        *activation_derivative = leaky_relu_derivative;
+        break;
+    }
+
+    case ACTIVATION_TANH: {
+        *activation_func = tanh_activation;
+        *activation_derivative = tanh_derivative;
+        break;
+    }
+
+        case ACTIVATION_SIGMOID: {
+        *activation_func = sigmoid;
+        *activation_derivative = sigmoid_derivative;
+        break;
+    }
+
     default: {
         perror("there is no function with this name");
     }

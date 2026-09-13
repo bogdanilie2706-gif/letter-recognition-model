@@ -19,21 +19,35 @@ int main(void)
         return 1;
     }
 
+    printf("---------------Leaky relu---------------\n");
     network_t net = create_network();
-    network_add_layer(net, 28 * 28, 128, ACTIVATION_RELU);
-    network_add_layer(net, 128, 64, ACTIVATION_RELU);
+    network_add_layer(net, 28 * 28, 128, ACTIVATION_LEAKY_RELU);
+    network_add_layer(net, 128, 64, ACTIVATION_LEAKY_RELU);
     network_add_layer(net, 64, 26, ACTIVATION_SOFTMAX);
     network_init_weights(net);
 
-    train_letter_model(train_data, test_data, net, 32, 0.004, 1);
-
-    save_model(net, "le_bot_robot");
+    train_letter_model(train_data, test_data, net, 32, 0.004, 10);
     free_network(&net);
-    net = load_model("le_bot_robot");
 
-    train_letter_model(train_data, test_data, net, 32, 0.004, 1);
+    printf("---------------Sigmoid---------------\n");
+    net = create_network();
+    network_add_layer(net, 28 * 28, 128, ACTIVATION_SIGMOID);
+    network_add_layer(net, 128, 64, ACTIVATION_SIGMOID);
+    network_add_layer(net, 64, 26, ACTIVATION_SOFTMAX);
+    network_init_weights(net);
 
-    save_model(net, "ze_bot");
+    train_letter_model(train_data, test_data, net, 32, 0.004, 10);
+    free_network(&net);
+
+    printf("---------------Tanh---------------\n");
+    net = create_network();
+    network_add_layer(net, 28 * 28, 128, ACTIVATION_TANH);
+    network_add_layer(net, 128, 64, ACTIVATION_TANH);
+    network_add_layer(net, 64, 26, ACTIVATION_SOFTMAX);
+    network_init_weights(net);
+
+    train_letter_model(train_data, test_data, net, 32, 0.004, 10);
+
 
     free_network(&net);
     destroy_dataset(&test_data);

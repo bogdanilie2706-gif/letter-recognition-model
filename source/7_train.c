@@ -152,7 +152,7 @@ void train_letter_model(dataset_t train, dataset_t test, network_t net, int batc
 		// train section
 		int train_good_guesses = 0;
 		for (int i = 0; i < train_nr_batches; i++) {
-			printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
+			// printf("starting batch nr %d out of %d\n", i + 1, train_nr_batches);
 
 			output = network_forward(net, train_batches->input[i]); // output free is handled by layer_forward func
 			grad = cross_entropy_gradient(output, train_batches->target[i]);
@@ -224,12 +224,17 @@ void save_model(network_t net, char *file_name)
         fwrite(crt->bias->data, sizeof(float), crt->output_size, file);
         crt = crt->next;
     }
+	printf("model has been saved to %s succesfully\n", file_name);
     fclose(file);
 }
 
 network_t load_model(char *file_name)
 {
     FILE *file = fopen(file_name, "rb");
+	if (!file) {
+		perror("couldn't open the file in load_model");
+		return NULL;
+	}
     network_t net = create_network();
     if (!net) {
         perror("couldn't create network");
